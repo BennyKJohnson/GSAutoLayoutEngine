@@ -108,7 +108,7 @@ typedef NS_ENUM(NSInteger, GSLayoutAttribute) {
     kiwi::Variable *width = [self getExistingVariableForView:view withAttribute:GSLayoutAttributeWidth];
     kiwi::Variable *height = [self getExistingVariableForView:view withAttribute:GSLayoutAttributeHeight];
 
-    return CGRectMake(minX->value(),minY->value(),width->value(),height->value());
+    return NSMakeRect(minX->value(),minY->value(),width->value(),height->value());
 }
 
 -(NSString*)getIdentifierForView:(NSView*)view
@@ -620,6 +620,7 @@ typedef NS_ENUM(NSInteger, GSLayoutAttribute) {
     delete solver;
     [self deallocSolverVariables];
     [self deallocSolverConstraints];
+    [super dealloc];
 }
 
 -(void)deallocSolverVariables
