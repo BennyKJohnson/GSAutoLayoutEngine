@@ -8,12 +8,12 @@
 CGFloat minimalPriorityHackValue = 1.0;
 
 @interface GSAutoLayoutEngineTestCase : XCTestCase
-@end
-
-@implementation GSAutoLayoutEngineTestCase
 {
     GSAutoLayoutEngine *engine;
 }
+@end
+
+@implementation GSAutoLayoutEngineTestCase
 
 - (void)setUp {
     engine = [[GSAutoLayoutEngine alloc] init];
@@ -37,7 +37,7 @@ CGFloat minimalPriorityHackValue = 1.0;
             attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:constant];
 }
 
--(void)addPositionConstraintsForSubView: (NSView*)subView superView: (NSView*)superView position: (CGPoint)position
+-(void)addPositionConstraintsForSubView: (NSView*)subView superView: (NSView*)superView position: (NSPoint)position
 {
     NSLayoutConstraint *xConstraint = [NSLayoutConstraint constraintWithItem:subView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:superView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:position.x];
     
@@ -47,7 +47,7 @@ CGFloat minimalPriorityHackValue = 1.0;
     [engine addConstraint:yConstraint];
 }
 
--(void)pinView: (NSView*)subView toTopLeftCornerOfSuperView: (NSView*)superView engine: (GSAutoLayoutEngine*)engine
+-(void)pinView: (NSView*)subView toTopLeftCornerOfSuperView: (NSView*)superView
 {
     NSLayoutConstraint *subViewLeadingConstraint = [NSLayoutConstraint constraintWithItem:subView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:superView attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0];
     NSLayoutConstraint *subViewTopConstraint = [NSLayoutConstraint constraintWithItem:subView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:superView attribute:NSLayoutAttributeTop multiplier:1.0 constant:0];
@@ -56,7 +56,7 @@ CGFloat minimalPriorityHackValue = 1.0;
     [engine addConstraint:subViewTopConstraint];
 }
 
--(void)pinView: (NSView*)subView toTopRightCornerOfSuperView: (NSView*)superView engine: (GSAutoLayoutEngine*)engine
+-(void)pinView: (NSView*)subView toTopRightCornerOfSuperView: (NSView*)superView
 {
     NSLayoutConstraint *subViewTrailing = [NSLayoutConstraint constraintWithItem:subView attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:superView attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:0];
     NSLayoutConstraint *subViewTopConstraint = [NSLayoutConstraint constraintWithItem:subView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:superView attribute:NSLayoutAttributeTop multiplier:1.0 constant:0];
@@ -65,12 +65,12 @@ CGFloat minimalPriorityHackValue = 1.0;
     [engine addConstraint:subViewTopConstraint];
 }
 
--(void)pinView: (NSView*)subView toBottomLeftCornerOfSuperView: (NSView*)superView engine: (GSAutoLayoutEngine*)engine
+-(void)pinView: (NSView*)subView toBottomLeftCornerOfSuperView: (NSView*)superView
 {
-    [self addPositionConstraintsForSubView:subView superView:superView position:CGPointMake(0, 0)];
+    [self addPositionConstraintsForSubView:subView superView:superView position:NSMakePoint(0, 0)];
 }
 
-- (NSView*)createRootViewWithSize: (CGSize)size engine: (GSAutoLayoutEngine*)engine
+- (NSView*)createRootViewWithSize: (NSSize)size
 {
     NSView *view = [[NSView alloc] init];
     [engine addInternalConstraintsToView:view];
@@ -87,7 +87,7 @@ CGFloat minimalPriorityHackValue = 1.0;
     return view;
 }
 
--(void)centerSubView: (NSView*)subView inSuperView: (NSView*)superView engine: (GSAutoLayoutEngine*)engine
+-(void)centerSubView: (NSView*)subView inSuperView: (NSView*)superView
 {
     NSLayoutConstraint *subViewCenterXConstraint = [NSLayoutConstraint constraintWithItem:subView attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:superView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0];
     NSLayoutConstraint *subViewCenterYConstraint = [NSLayoutConstraint constraintWithItem:subView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:superView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0];
@@ -97,8 +97,8 @@ CGFloat minimalPriorityHackValue = 1.0;
 
 -(void)verticallyStackViewsSuperView: (NSView*)superView topView:(NSView*)topView bottomView: (NSView*)bottomView
 {
-    [self pinView:topView toTopLeftCornerOfSuperView:superView engine:engine];
-    [self pinView:bottomView toBottomLeftCornerOfSuperView:superView engine:engine];
+    [self pinView:topView toTopLeftCornerOfSuperView:superView];
+    [self pinView:bottomView toBottomLeftCornerOfSuperView:superView];
     
     NSLayoutConstraint *view1ToView2Constraint = [NSLayoutConstraint constraintWithItem:topView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:bottomView attribute:NSLayoutAttributeTop multiplier:1.0 constant:0];
     [engine addConstraint:view1ToView2Constraint];
@@ -108,8 +108,8 @@ CGFloat minimalPriorityHackValue = 1.0;
 
 -(void)horizontallyStackViewsInsideSuperView: (NSView*)superView leftView:(NSView*)leftView rightView: (NSView*)rightView
 {
-    [self pinView:leftView toTopLeftCornerOfSuperView:superView engine:engine];
-    [self pinView:rightView toTopRightCornerOfSuperView:superView engine:engine];
+    [self pinView:leftView toTopLeftCornerOfSuperView:superView];
+    [self pinView:rightView toTopRightCornerOfSuperView:superView];
     NSLayoutConstraint *view1ToView2Constraint = [NSLayoutConstraint constraintWithItem:leftView attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:rightView attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0];
 
     [engine addConstraint:view1ToView2Constraint];
@@ -139,12 +139,12 @@ CGFloat minimalPriorityHackValue = 1.0;
     [engine addConstraint:heightConstraint];
 
     NSRect rootViewFrame = [engine alignmentRectForView: rootView];
-    [self assertAlignmentRect:rootViewFrame expectedRect: CGRectMake(0, 0, 800, 600)];
+    [self assertAlignmentRect:rootViewFrame expectedRect: NSMakeRect(0, 0, 800, 600)];
 }
 
 -(void)testSolvesLayoutForSubviewWithLeadingTrailingTopAndBottomConstraintsToSuperView
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(800, 600) engine:engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(800, 600)];
     NSView *subView = [[NSView alloc] init];
     NSArray *layoutAttributes = @[
         @(NSLayoutAttributeLeading),
@@ -160,12 +160,12 @@ CGFloat minimalPriorityHackValue = 1.0;
     }
 
     NSRect subViewFrame = [engine alignmentRectForView:subView];
-    [self assertAlignmentRect:subViewFrame expectedRect: CGRectMake(10, 10, 780, 580)];
+    [self assertAlignmentRect:subViewFrame expectedRect: NSMakeRect(10, 10, 780, 580)];
 }
 
 -(void)testSolvesLayoutForSubViewWithLeftRightConstraintToSuperView
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(500, 500) engine: engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(500, 500)];
     NSView *subView = [[NSView alloc] init];
     NSArray *layoutAttributes = @[
         @(NSLayoutAttributeLeft),
@@ -180,12 +180,12 @@ CGFloat minimalPriorityHackValue = 1.0;
     }
     
     NSRect subViewFrame = [engine alignmentRectForView:subView];
-    [self assertAlignmentRect:subViewFrame expectedRect:CGRectMake(10, 10, 480, 480)];
+    [self assertAlignmentRect:subViewFrame expectedRect:NSMakeRect(10, 10, 480, 480)];
 }
 
 -(void)testSolvesLayoutWithHorizontalCenterConstraint
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
     NSView *subView = [[NSView alloc] init];
     
     NSLayoutConstraint *widthConstraint = [NSLayoutConstraint
@@ -207,12 +207,12 @@ CGFloat minimalPriorityHackValue = 1.0;
     [engine addConstraint:subViewCenterXConstraint];
         
     NSRect subViewFrame = [engine alignmentRectForView:subView];
-    [self assertAlignmentRect:subViewFrame expectedRect:CGRectMake(150, 280, 100, 100)];
+    [self assertAlignmentRect:subViewFrame expectedRect:NSMakeRect(150, 280, 100, 100)];
 }
 
 -(void)testSolvesLayoutWithVerticalCenterConstraint
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
     NSView *subView = [[NSView alloc] init];
     
     NSLayoutConstraint *widthConstraint = [NSLayoutConstraint
@@ -234,12 +234,12 @@ CGFloat minimalPriorityHackValue = 1.0;
     [engine addConstraint:subViewCenterYConstraint];
     
     NSRect subViewFrame = [engine alignmentRectForView:subView];
-    XCTAssertTrue(NSEqualRects(subViewFrame, CGRectMake(150, 150, 100, 100)));
+    XCTAssertTrue(NSEqualRects(subViewFrame, NSMakeRect(150, 150, 100, 100)));
 }
 
 -(void)testSolvesLayoutWithRequiredAndNonRequiredPriorityConstraints
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
     NSView *subView = [[NSView alloc] init];
     
     NSLayoutConstraint *nonRequiredWidthConstraint = [NSLayoutConstraint
@@ -265,16 +265,16 @@ CGFloat minimalPriorityHackValue = 1.0;
     [engine addConstraint:nonRequiredWidthConstraint];
     [engine addConstraint:requiredWidthConstraint];
     [engine addConstraint:heightConstraint];
-    [self centerSubView:subView inSuperView:rootView engine:engine];
+    [self centerSubView:subView inSuperView:rootView];
 
     
     NSRect subViewFrame = [engine alignmentRectForView:subView];
-    XCTAssertTrue(NSEqualRects(subViewFrame, CGRectMake(100, 150, 200, 100)));
+    XCTAssertTrue(NSEqualRects(subViewFrame, NSMakeRect(100, 150, 200, 100)));
 }
 
 -(void)testSolvesLayoutWithConstraintsUsingCustomPriorities
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
     NSView *subView = [[NSView alloc] init];
     
     NSLayoutConstraint *nonRequiredWidthConstraint = [NSLayoutConstraint
@@ -300,16 +300,16 @@ CGFloat minimalPriorityHackValue = 1.0;
     [engine addConstraint:nonRequiredWidthConstraint];
     [engine addConstraint:requiredWidthConstraint];
     [engine addConstraint:heightConstraint];
-    [self centerSubView:subView inSuperView:rootView engine:engine];
+    [self centerSubView:subView inSuperView:rootView];
 
     
     NSRect subViewFrame = [engine alignmentRectForView:subView];
-    XCTAssertTrue(NSEqualRects(subViewFrame, CGRectMake(100, 150, 200, 100)));
+    XCTAssertTrue(NSEqualRects(subViewFrame, NSMakeRect(100, 150, 200, 100)));
 }
 
 -(void)testSolvesLayoutAfterRemovingConstraint
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
     NSView *subView = [[NSView alloc] init];
     
     NSLayoutConstraint *constraintToRemove = [NSLayoutConstraint
@@ -332,19 +332,19 @@ CGFloat minimalPriorityHackValue = 1.0;
     
     [engine addConstraint:constraintToRemove];
     [engine addConstraint:widthConstraint];
-    [self centerSubView:subView inSuperView:rootView engine:engine];
+    [self centerSubView:subView inSuperView:rootView];
 
     NSRect subViewFrameBeforeRemovingConstraint = [engine alignmentRectForView:subView];
-    XCTAssertTrue(NSEqualRects(subViewFrameBeforeRemovingConstraint, CGRectMake(150, 150, 100, 100)));
+    XCTAssertTrue(NSEqualRects(subViewFrameBeforeRemovingConstraint, NSMakeRect(150, 150, 100, 100)));
     
     [engine removeConstraint: constraintToRemove];
     NSRect subViewFrameAfterRemovingConstraint = [engine alignmentRectForView:subView];
-    XCTAssertTrue(NSEqualRects(subViewFrameAfterRemovingConstraint, CGRectMake(100, 150, 200, 100)));
+    XCTAssertTrue(NSEqualRects(subViewFrameAfterRemovingConstraint, NSMakeRect(100, 150, 200, 100)));
 }
 
 -(void)testSolvesLayoutAfterRemovingSeveralConstraints
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
     NSView *subView = [[NSView alloc] init];
     
     NSLayoutConstraint *widthConstraintToRemove = [self widthConstraintForView:subView constant:100];
@@ -352,7 +352,7 @@ CGFloat minimalPriorityHackValue = 1.0;
     NSLayoutConstraint *heightConstraintToRemove = [self heightConstraintForView:subView constant:100];
     NSLayoutConstraint *heightConstraint = [self heightConstraintForView:subView constant:200];
     
-    [self centerSubView:subView inSuperView:rootView engine:engine];
+    [self centerSubView:subView inSuperView:rootView];
 
     [engine addConstraint:widthConstraintToRemove];
     [engine addConstraint:widthConstraint];
@@ -361,18 +361,18 @@ CGFloat minimalPriorityHackValue = 1.0;
     
 
     NSRect subViewFrameBeforeRemovingConstraint = [engine alignmentRectForView:subView];
-    XCTAssertTrue(NSEqualRects(subViewFrameBeforeRemovingConstraint, CGRectMake(150, 150, 100, 100)));
+    XCTAssertTrue(NSEqualRects(subViewFrameBeforeRemovingConstraint, NSMakeRect(150, 150, 100, 100)));
     
     [engine removeConstraints: [NSArray arrayWithObjects:widthConstraintToRemove, heightConstraintToRemove, nil]];
     NSRect subViewFrameAfterRemovingConstraint = [engine alignmentRectForView:subView];
-    XCTAssertTrue(NSEqualRects(subViewFrameAfterRemovingConstraint, CGRectMake(100, 100, 200, 200)));
+    XCTAssertTrue(NSEqualRects(subViewFrameAfterRemovingConstraint, NSMakeRect(100, 100, 200, 200)));
 }
 
 -(void)testSolvesLayoutWithConstraintThatHasAMultiplier
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
     NSView *subView = [[NSView alloc] init];
-    [self centerSubView:subView inSuperView:rootView engine:engine];
+    [self centerSubView:subView inSuperView:rootView];
     
     NSLayoutConstraint *widthConstraint = [NSLayoutConstraint constraintWithItem:subView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:rootView attribute:NSLayoutAttributeWidth multiplier:0.5 constant:0];
     NSLayoutConstraint *heightConstraint = [NSLayoutConstraint constraintWithItem:subView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:rootView attribute:NSLayoutAttributeHeight multiplier:0.5 constant:0];
@@ -381,10 +381,10 @@ CGFloat minimalPriorityHackValue = 1.0;
     [engine addConstraint:heightConstraint];
     
     NSRect subViewFrame = [engine alignmentRectForView:subView];
-    XCTAssertTrue(NSEqualRects(subViewFrame, CGRectMake(100, 100, 200, 200)));
+    XCTAssertTrue(NSEqualRects(subViewFrame, NSMakeRect(100, 100, 200, 200)));
 }
 
--(CustomBaselineView*)createBaselineViewInsideSuperView:(NSView*)superView WithEngine: (GSAutoLayoutEngine*)engine
+-(CustomBaselineView*)createBaselineViewInsideSuperView:(NSView*)superView
 {
     CustomBaselineView *baselineView = [[CustomBaselineView alloc] init];
     NSLayoutConstraint *baselineWidth = [self widthConstraintForView:baselineView constant:20];
@@ -400,7 +400,7 @@ CGFloat minimalPriorityHackValue = 1.0;
     return baselineView;
 }
 
--(void)addSizeConstraintsToView: (NSView*)view engine: (GSAutoLayoutEngine*)engine size: (CGSize)size
+-(void)addSizeConstraintsToView: (NSView*)view size: (NSSize)size
 {
     NSLayoutConstraint *widthConstraint = [self widthConstraintForView:view constant:size.width];
     NSLayoutConstraint *heightConstraint = [self heightConstraintForView:view constant:size.height];
@@ -410,13 +410,13 @@ CGFloat minimalPriorityHackValue = 1.0;
 
 -(void)testSolvesLayoutWithFirstBaselineConstraint
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
     
-    CustomBaselineView *baselineView = [self createBaselineViewInsideSuperView:rootView WithEngine:engine];
+    CustomBaselineView *baselineView = [self createBaselineViewInsideSuperView:rootView];
     baselineView.firstBaselineOffsetFromTop = 5;
     
     NSView *baselineOffsetView = [[NSView alloc] init];
-    [self addSizeConstraintsToView:baselineOffsetView engine:engine size:CGSizeMake(20, 20)];
+    [self addSizeConstraintsToView:baselineOffsetView size:NSMakeSize(20, 20)];
 
     NSLayoutConstraint *baselineOffsetX = [NSLayoutConstraint constraintWithItem:baselineOffsetView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:rootView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0];
     
@@ -427,21 +427,21 @@ CGFloat minimalPriorityHackValue = 1.0;
     
     NSRect subViewFrameAfterUpdatingConstraint = [engine alignmentRectForView:baselineOffsetView];
     CGFloat expectedY = 400 - 5 - 20;
-    XCTAssertTrue(NSEqualRects(subViewFrameAfterUpdatingConstraint, CGRectMake(0, expectedY, 20, 20)));
+    XCTAssertTrue(NSEqualRects(subViewFrameAfterUpdatingConstraint, NSMakeRect(0, expectedY, 20, 20)));
     baselineView.firstBaselineOffsetFromTop = 0;
     NSRect offsetViewFrameAfterUpdating = [engine alignmentRectForView:baselineOffsetView];
-    XCTAssertTrue(NSEqualRects(offsetViewFrameAfterUpdating, CGRectMake(0, 380, 20, 20)));
+    XCTAssertTrue(NSEqualRects(offsetViewFrameAfterUpdating, NSMakeRect(0, 380, 20, 20)));
 }
 
 -(void)testSolvesLayoutWithLastBaselineConstraint
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
     
-    CustomBaselineView *baselineView = [self createBaselineViewInsideSuperView:rootView WithEngine:engine];
+    CustomBaselineView *baselineView = [self createBaselineViewInsideSuperView:rootView];
     baselineView.baselineOffsetFromBottom = 10;
     
     NSView *baselineOffsetView = [[NSView alloc] init];
-    [self addSizeConstraintsToView:baselineOffsetView engine:engine size:CGSizeMake(20, 20)];
+    [self addSizeConstraintsToView:baselineOffsetView size:NSMakeSize(20, 20)];
 
     NSLayoutConstraint *baselineOffsetX = [NSLayoutConstraint constraintWithItem:baselineOffsetView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:rootView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0];
     
@@ -451,11 +451,11 @@ CGFloat minimalPriorityHackValue = 1.0;
     [engine addConstraint:baselineOffsetYConstraint];
     
     NSRect subViewFrameAfterUpdatingConstraint = [engine alignmentRectForView:baselineOffsetView];
-    XCTAssertTrue(NSEqualRects(subViewFrameAfterUpdatingConstraint, CGRectMake(0, 370, 20, 20)));
+    XCTAssertTrue(NSEqualRects(subViewFrameAfterUpdatingConstraint, NSMakeRect(0, 370, 20, 20)));
     
     baselineView.baselineOffsetFromBottom = 0;
     NSRect offsetViewFrameAfterUpdating = [engine alignmentRectForView:baselineOffsetView];
-    XCTAssertTrue(NSEqualRects(offsetViewFrameAfterUpdating, CGRectMake(0, 360, 20, 20)));
+    XCTAssertTrue(NSEqualRects(offsetViewFrameAfterUpdating, NSMakeRect(0, 360, 20, 20)));
 }
 
 -(void)testAddingConflictingConstraintsDoesNotThrow
@@ -464,7 +464,6 @@ CGFloat minimalPriorityHackValue = 1.0;
     NSLayoutConstraint *widthConstraint = [self widthConstraintForView:view constant:100];
     NSLayoutConstraint *conflictingWidthConstraint = [self widthConstraintForView:view constant:200];
     
-    GSAutoLayoutEngine *engine = [[GSAutoLayoutEngine alloc] init];
     [engine addConstraint: widthConstraint];
     [engine addConstraint: conflictingWidthConstraint];
 }
@@ -473,36 +472,35 @@ CGFloat minimalPriorityHackValue = 1.0;
 {
     NSView *view = [[NSView alloc] init];
     NSLayoutConstraint *widthConstraint = [self widthConstraintForView:view constant:100];
-    GSAutoLayoutEngine *engine = [[GSAutoLayoutEngine alloc] init];
     [engine removeConstraint:widthConstraint];
 }
 
 -(void)testSolvesLayoutAfterUpdatingConstraint
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
     NSView *subView = [[NSView alloc] init];
     NSLayoutConstraint *widthConstraint = [self widthConstraintForView:subView constant:100];
     NSLayoutConstraint *heightConstraint = [self heightConstraintForView:subView constant:100];
     
-    [self centerSubView:subView inSuperView:rootView engine:engine];
+    [self centerSubView:subView inSuperView:rootView];
 
     [engine addConstraint:widthConstraint];
     [engine addConstraint:heightConstraint];
     
     NSRect subViewFrameBeforeUpdatingConstraint = [engine alignmentRectForView:subView];
-    XCTAssertTrue(NSEqualRects(subViewFrameBeforeUpdatingConstraint, CGRectMake(150, 150, 100, 100)));
+    XCTAssertTrue(NSEqualRects(subViewFrameBeforeUpdatingConstraint, NSMakeRect(150, 150, 100, 100)));
     [widthConstraint setConstant:200];
 
     NSRect subViewFrameAfterUpdatingConstraint = [engine alignmentRectForView:subView];
-    XCTAssertTrue(NSEqualRects(subViewFrameAfterUpdatingConstraint, CGRectMake(100, 150, 200, 100)));
+    XCTAssertTrue(NSEqualRects(subViewFrameAfterUpdatingConstraint, NSMakeRect(100, 150, 200, 100)));
 }
 
 -(void)testSolvesLayoutWithConstraintRelationGreaterThanOrEqual
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
     NSView *subView = [[NSView alloc] init];
     
-    [self centerSubView:subView inSuperView:rootView engine:engine];
+    [self centerSubView:subView inSuperView:rootView];
     NSLayoutConstraint *heightConstraint = [self heightConstraintForView:subView constant:100];
     NSLayoutConstraint *widthGreaterThanConstraint = [NSLayoutConstraint constraintWithItem:subView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationGreaterThanOrEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:200];
     
@@ -514,15 +512,15 @@ CGFloat minimalPriorityHackValue = 1.0;
     [engine addConstraint:widthFixedConstraint];
     
     NSRect subViewFrame = [engine alignmentRectForView:subView];
-    XCTAssertTrue(NSEqualRects(subViewFrame, CGRectMake(75, 150, 250, 100)));
+    XCTAssertTrue(NSEqualRects(subViewFrame, NSMakeRect(75, 150, 250, 100)));
 }
 
 -(void)testSolvesLayoutWithConstraintRelationLessThanOrEqual
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
     NSView *subView = [[NSView alloc] init];
     
-    [self centerSubView:subView inSuperView:rootView engine:engine];
+    [self centerSubView:subView inSuperView:rootView];
     NSLayoutConstraint *heightConstraint = [self heightConstraintForView:subView constant:100];
     NSLayoutConstraint *widthLessThanConstraint = [NSLayoutConstraint constraintWithItem:subView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationLessThanOrEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:250];
     
@@ -534,15 +532,15 @@ CGFloat minimalPriorityHackValue = 1.0;
     [engine addConstraint:widthFixedConstraint];
     
     NSRect subViewFrame = [engine alignmentRectForView:subView];
-    XCTAssertTrue(NSEqualRects(subViewFrame, CGRectMake(100, 150, 200, 100)));
+    XCTAssertTrue(NSEqualRects(subViewFrame, NSMakeRect(100, 150, 200, 100)));
 }
 
 -(void)testSolvesLayoutWithConstraintAssociatedRelationLessThanOrEqual
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
     NSView *subView = [[NSView alloc] init];
     
-    [self centerSubView:subView inSuperView:rootView engine:engine];
+    [self centerSubView:subView inSuperView:rootView];
     NSLayoutConstraint *heightConstraint = [self heightConstraintForView:subView constant:100];
     NSLayoutConstraint *widthGreaterThanConstraint = [NSLayoutConstraint constraintWithItem:subView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationLessThanOrEqual toItem:rootView attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0];
     
@@ -554,12 +552,12 @@ CGFloat minimalPriorityHackValue = 1.0;
     [engine addConstraint:widthFixedConstraint];
     
     NSRect subViewFrame = [engine alignmentRectForView:subView];
-    XCTAssertTrue(NSEqualRects(subViewFrame, CGRectMake(75, 150, 250, 100)));
+    XCTAssertTrue(NSEqualRects(subViewFrame, NSMakeRect(75, 150, 250, 100)));
 }
 
 -(void)testSolvesLayoutWithConstraintAssociatedRelationGreaterThanOrEqual
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
     NSView *subView = [[NSView alloc] init];
     NSView *associatedView = [[NSView alloc] init];
     
@@ -567,7 +565,7 @@ CGFloat minimalPriorityHackValue = 1.0;
     NSLayoutConstraint *associatedViewHeightConstraint = [self heightConstraintForView:associatedView constant:100];
     
     
-    [self centerSubView:subView inSuperView:rootView engine:engine];
+    [self centerSubView:subView inSuperView:rootView];
     NSLayoutConstraint *heightConstraint = [self heightConstraintForView:subView constant:100];
     NSLayoutConstraint *widthGreaterThanConstraint = [NSLayoutConstraint constraintWithItem:subView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationGreaterThanOrEqual toItem:associatedView attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0];
     
@@ -581,26 +579,26 @@ CGFloat minimalPriorityHackValue = 1.0;
     [engine addConstraint:widthFixedConstraint];
     
     NSRect subViewFrame = [engine alignmentRectForView:subView];
-    XCTAssertTrue(NSEqualRects(subViewFrame, CGRectMake(75, 150, 250, 100)));
+    XCTAssertTrue(NSEqualRects(subViewFrame, NSMakeRect(75, 150, 250, 100)));
 }
 
 -(void)testSolvesLayoutUsingViewIntrinsicContentSize
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
     CustomInstrinctContentSizeView *subView = [[CustomInstrinctContentSizeView alloc] init];
-    subView.intrinsicContentSize = CGSizeMake(40, 20);
+    subView.intrinsicContentSize = NSMakeSize(40, 20);
     [engine addIntrinsicContentSizeConstraintsToView:subView];
-    [self addPositionConstraintsForSubView:subView superView:rootView position:CGPointMake(0, 0)];
+    [self addPositionConstraintsForSubView:subView superView:rootView position:NSMakePoint(0, 0)];
     
     NSRect subviewAlignRect = [engine alignmentRectForView: subView];
-    XCTAssertTrue(NSEqualRects(subviewAlignRect, CGRectMake(0, 0, 40, 20)));
+    XCTAssertTrue(NSEqualRects(subviewAlignRect, NSMakeRect(0, 0, 40, 20)));
 }
 
 -(void)testSolvesLayoutWithCompetingIntrinsicContentSizeHorizontalHuggingResistancePriorities
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
-    CustomInstrinctContentSizeView *view1 = [CustomInstrinctContentSizeView withInstrinctContentSize:CGSizeMake(50, 20)];
-    CustomInstrinctContentSizeView *view2 = [CustomInstrinctContentSizeView withInstrinctContentSize:CGSizeMake(50, 20)];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
+    CustomInstrinctContentSizeView *view1 = [CustomInstrinctContentSizeView withInstrinctContentSize:NSMakeSize(50, 20)];
+    CustomInstrinctContentSizeView *view2 = [CustomInstrinctContentSizeView withInstrinctContentSize:NSMakeSize(50, 20)];
     
     [view1 setContentHuggingPriority:250 forOrientation:NSLayoutConstraintOrientationHorizontal];
     // TODO Fix priority strength to support content hugging priorities greater than 1
@@ -611,15 +609,15 @@ CGFloat minimalPriorityHackValue = 1.0;
     NSRect view1Rect = [engine alignmentRectForView:view1];
     NSRect view2Rect = [engine alignmentRectForView:view2];
     
-    XCTAssertTrue(NSEqualRects(view1Rect, CGRectMake(0, 380, 50, 20)));
-    XCTAssertTrue(NSEqualRects(view2Rect, CGRectMake(50, 380, 350, 20)));
+    XCTAssertTrue(NSEqualRects(view1Rect, NSMakeRect(0, 380, 50, 20)));
+    XCTAssertTrue(NSEqualRects(view2Rect, NSMakeRect(50, 380, 350, 20)));
 }
 
 -(void)testSolvesLayoutWithCompetingIntrinsicContentSizeVerticalHuggingResistancePriorities
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
-    CustomInstrinctContentSizeView *view1 = [CustomInstrinctContentSizeView withInstrinctContentSize:CGSizeMake(50, 50)];
-    CustomInstrinctContentSizeView *view2 = [CustomInstrinctContentSizeView withInstrinctContentSize:CGSizeMake(50, 50)];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
+    CustomInstrinctContentSizeView *view1 = [CustomInstrinctContentSizeView withInstrinctContentSize:NSMakeSize(50, 50)];
+    CustomInstrinctContentSizeView *view2 = [CustomInstrinctContentSizeView withInstrinctContentSize:NSMakeSize(50, 50)];
     
     [view1 setContentHuggingPriority:250 forOrientation:NSLayoutConstraintOrientationVertical];
     // TODO Fix priority strength to support content hugging priorities greater than 1
@@ -627,38 +625,38 @@ CGFloat minimalPriorityHackValue = 1.0;
     
     [self verticallyStackViewsSuperView:rootView topView:view1 bottomView:view2];
         
-    XCTAssertTrue(NSEqualRects([engine alignmentRectForView:view1], CGRectMake(0, 350, 50, 50)));
-    XCTAssertTrue(NSEqualRects([engine alignmentRectForView:view2], CGRectMake(0, 0, 50, 350)));
+    XCTAssertTrue(NSEqualRects([engine alignmentRectForView:view1], NSMakeRect(0, 350, 50, 50)));
+    XCTAssertTrue(NSEqualRects([engine alignmentRectForView:view2], NSMakeRect(0, 0, 50, 350)));
 }
 
 -(void)testSolvesLayoutWithCompetingInstrinctContentSizeHorizonalCompressionResistance
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
-    CustomInstrinctContentSizeView *view1 = [CustomInstrinctContentSizeView withInstrinctContentSize:CGSizeMake(250, 20)];
-    CustomInstrinctContentSizeView *view2 = [CustomInstrinctContentSizeView withInstrinctContentSize:CGSizeMake(250, 20)];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
+    CustomInstrinctContentSizeView *view1 = [CustomInstrinctContentSizeView withInstrinctContentSize:NSMakeSize(250, 20)];
+    CustomInstrinctContentSizeView *view2 = [CustomInstrinctContentSizeView withInstrinctContentSize:NSMakeSize(250, 20)];
     
     [view1 setContentCompressionResistancePriority:750 forOrientation:NSLayoutConstraintOrientationHorizontal];
     [view2 setContentCompressionResistancePriority:minimalPriorityHackValue forOrientation:NSLayoutConstraintOrientationHorizontal];
     
     [self horizontallyStackViewsInsideSuperView:rootView leftView:view1 rightView:view2];
     
-    XCTAssertTrue(NSEqualRects([engine alignmentRectForView:view1], CGRectMake(0, 380, 250, 20)));
-    XCTAssertTrue(NSEqualRects([engine alignmentRectForView:view2], CGRectMake(250, 380, 150, 20)));
+    XCTAssertTrue(NSEqualRects([engine alignmentRectForView:view1], NSMakeRect(0, 380, 250, 20)));
+    XCTAssertTrue(NSEqualRects([engine alignmentRectForView:view2], NSMakeRect(250, 380, 150, 20)));
 }
 
 -(void)testSolvesLayoutWithCompetingInstrinctContentSizeVerticalCompressionResistance
 {
-    NSView *rootView = [self createRootViewWithSize:CGSizeMake(400, 400) engine:engine];
-    CustomInstrinctContentSizeView *view1 = [CustomInstrinctContentSizeView withInstrinctContentSize:CGSizeMake(50, 250)];
-    CustomInstrinctContentSizeView *view2 = [CustomInstrinctContentSizeView withInstrinctContentSize:CGSizeMake(50, 250)];
+    NSView *rootView = [self createRootViewWithSize:NSMakeSize(400, 400)];
+    CustomInstrinctContentSizeView *view1 = [CustomInstrinctContentSizeView withInstrinctContentSize:NSMakeSize(50, 250)];
+    CustomInstrinctContentSizeView *view2 = [CustomInstrinctContentSizeView withInstrinctContentSize:NSMakeSize(50, 250)];
     
     [view1 setContentCompressionResistancePriority:750 forOrientation:NSLayoutConstraintOrientationVertical];
     [view2 setContentCompressionResistancePriority:minimalPriorityHackValue forOrientation:NSLayoutConstraintOrientationVertical];
 
     [self verticallyStackViewsSuperView:rootView topView:view1 bottomView:view2];
     
-    [self assertAlignmentRect:[engine alignmentRectForView:view1] expectedRect:CGRectMake(0, 150, 50, 250)];
-    [self assertAlignmentRect:[engine alignmentRectForView:view2] expectedRect:CGRectMake(0, 0, 50, 150)];
+    [self assertAlignmentRect:[engine alignmentRectForView:view1] expectedRect:NSMakeRect(0, 150, 50, 250)];
+    [self assertAlignmentRect:[engine alignmentRectForView:view2] expectedRect:NSMakeRect(0, 0, 50, 150)];
 }
 
 @end

@@ -4,7 +4,7 @@
 
 @interface CustomInstrinctContentSizeView : NSView
 
-+ (CustomInstrinctContentSizeView *)withInstrinctContentSize: (CGSize)size;
++ (CustomInstrinctContentSizeView *)withInstrinctContentSize: (NSSize)size;
 
 @property NSSize intrinsicContentSize;
 
@@ -12,7 +12,7 @@
 
 @implementation CustomInstrinctContentSizeView
 
-+ (CustomInstrinctContentSizeView *)withInstrinctContentSize: (CGSize)size {
++ (CustomInstrinctContentSizeView *)withInstrinctContentSize: (NSSize)size {
     CustomInstrinctContentSizeView *view = [[CustomInstrinctContentSizeView alloc] init];
     view.intrinsicContentSize = size;
     return view;
