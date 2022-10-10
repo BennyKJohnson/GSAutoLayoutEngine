@@ -13,6 +13,8 @@
 		430D7F8A28E9079E003E9721 /* Kiwi in Resources */ = {isa = PBXBuildFile; fileRef = 430D7F8928E9079E003E9721 /* Kiwi */; };
 		430D7F8E28E908A4003E9721 /* GSAutoLayoutEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = 430D7F8D28E908A4003E9721 /* GSAutoLayoutEngine.h */; };
 		430D7F9128E908BA003E9721 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 430D7F9028E908B9003E9721 /* AppKit.framework */; };
+		43BD50BC28F270CF004C10B5 /* NSView+Layout.h in Headers */ = {isa = PBXBuildFile; fileRef = 43BD50BA28F270CF004C10B5 /* NSView+Layout.h */; };
+		43BD50BD28F270CF004C10B5 /* NSView+Layout.m in Sources */ = {isa = PBXBuildFile; fileRef = 43BD50BB28F270CF004C10B5 /* NSView+Layout.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +37,9 @@
 		430D7F8928E9079E003E9721 /* Kiwi */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Kiwi; sourceTree = "<group>"; };
 		430D7F8D28E908A4003E9721 /* GSAutoLayoutEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GSAutoLayoutEngine.h; sourceTree = "<group>"; };
 		430D7F9028E908B9003E9721 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		43BD50BA28F270CF004C10B5 /* NSView+Layout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSView+Layout.h"; sourceTree = "<group>"; };
+		43BD50BB28F270CF004C10B5 /* NSView+Layout.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSView+Layout.m"; sourceTree = "<group>"; };
+		43BD50BE28F403E9004C10B5 /* LayoutSpyView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LayoutSpyView.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +87,8 @@
 				430D7F8D28E908A4003E9721 /* GSAutoLayoutEngine.h */,
 				430D7F8928E9079E003E9721 /* Kiwi */,
 				430D7F8628E9078B003E9721 /* GSAutoLayoutEngine.mm */,
+				43BD50BA28F270CF004C10B5 /* NSView+Layout.h */,
+				43BD50BB28F270CF004C10B5 /* NSView+Layout.m */,
 			);
 			path = GSAutoLayoutEngine;
 			sourceTree = "<group>";
@@ -92,6 +99,7 @@
 				430D7F8428E9076B003E9721 /* CustomInstrinctContentSizeView.h */,
 				430D7F8328E90764003E9721 /* CustomBaselineView.h */,
 				430D7F8128E90754003E9721 /* GSAutoLayoutEngineTestCase.m */,
+				43BD50BE28F403E9004C10B5 /* LayoutSpyView.h */,
 			);
 			path = GSAutoLayoutEngineTests;
 			sourceTree = "<group>";
@@ -111,6 +119,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				43BD50BC28F270CF004C10B5 /* NSView+Layout.h in Headers */,
 				430D7F8E28E908A4003E9721 /* GSAutoLayoutEngine.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -214,6 +223,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				430D7F8828E9078B003E9721 /* GSAutoLayoutEngine.mm in Sources */,
+				43BD50BD28F270CF004C10B5 /* NSView+Layout.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

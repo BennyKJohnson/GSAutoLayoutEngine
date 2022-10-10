@@ -1,5 +1,6 @@
 #import "GSAutoLayoutEngine.h"
 #include "Kiwi/kiwi.h"
+#import "NSView+Layout.h"
 #include <map>
 
 typedef NS_ENUM(NSInteger, GSLayoutViewAttribute) {
@@ -33,11 +34,13 @@ typedef NS_ENUM(NSInteger, GSLayoutAttribute) {
     kiwi::Solver *solver;
     std::map<std::string, kiwi::Variable*> variablesByKey;
     std::vector<kiwi::Constraint*> solverConstraints;
-    NSMutableDictionary *identifiersByView;
     std::map<NSUInteger, kiwi::Constraint*> constraintsByAutoLayoutConstaintHash;
     NSMutableArray *trackedVariables;
     NSDictionary *keypathByLayoutDynamicAttribute;
     NSDictionary *layoutDynamicAttributeByKeypath;
+    NSMutableArray *trackedViews;
+    NSMutableDictionary *viewIndexByViewHash;
+    NSMutableDictionary *viewAlignmentRectByViewIndex;
     int viewCounter;
 }
 
@@ -45,7 +48,6 @@ typedef NS_ENUM(NSInteger, GSLayoutAttribute) {
     if (self = [super init]) {
         viewCounter = 0;
         solver = new kiwi::Solver();
-        identifiersByView = [NSMutableDictionary dictionary];
         trackedVariables = [NSMutableArray array];
         keypathByLayoutDynamicAttribute = @{
             @(GSLayoutViewAttributeBaselineOffsetFromBottom): @"baselineOffsetFromBottom",
@@ -53,6 +55,10 @@ typedef NS_ENUM(NSInteger, GSLayoutAttribute) {
             @(GSLayoutViewAttributeIntrinsicWidth): @"intrinsicContentSize.width",
             @(GSLayoutViewAttributeInstrinctHeight): @"intrinsicContentSize.height"
         };
+        
+        trackedViews = [NSMutableArray array];
+        viewAlignmentRectByViewIndex = [NSMutableDictionary dictionary];
+        viewIndexByViewHash = [NSMutableDictionary dictionary];
 
         NSArray *layoutDynamicAttributes = [keypathByLayoutDynamicAttribute allKeys];
         layoutDynamicAttributeByKeypath = [NSDictionary dictionaryWithObjects:layoutDynamicAttributes forKeys:[keypathByLayoutDynamicAttribute allValues]];
@@ -98,11 +104,12 @@ typedef NS_ENUM(NSInteger, GSLayoutAttribute) {
         CGFloat height = [view intrinsicContentSize].height;
         solver->suggestValue(*instrinctHeightVariable, height);
     }
+    
+    [self updateAlignmentRectsForTrackedViews];
 }
 
--(NSRect)alignmentRectForView: (NSView*)view {
-    solver->updateVariables();
-
+-(NSRect)_solverAlignmentRectForView:(NSView *)view
+{
     kiwi::Variable *minX = [self getExistingVariableForView:view withAttribute:GSLayoutAttriuteMinX];
     kiwi::Variable *minY = [self getExistingVariableForView:view withAttribute:GSLayoutAttributeMinY];
     kiwi::Variable *width = [self getExistingVariableForView:view withAttribute:GSLayoutAttributeWidth];
@@ -111,20 +118,134 @@ typedef NS_ENUM(NSInteger, GSLayoutAttribute) {
     return NSMakeRect(minX->value(),minY->value(),width->value(),height->value());
 }
 
--(NSString*)getIdentifierForView:(NSView*)view
-{
-    NSString *viewIdentifier;
-    NSString *viewHash = [NSString stringWithFormat: @"%ld", [view hash]];
-    NSString *existingViewId = [identifiersByView objectForKey: viewHash];
-    if (existingViewId) {
-        viewIdentifier = existingViewId;
-    } else {
-        viewCounter++;
-        viewIdentifier = [NSString stringWithFormat: @"view%ld", (long)viewCounter];
-        [identifiersByView setObject: viewIdentifier  forKey: viewHash];
+-(BOOL)_solverCanSolveAlignmentRectForView: (NSView*)view {
+    kiwi::Variable *minX = [self getExistingVariableForView:view withAttribute:GSLayoutAttriuteMinX];
+    if (!minX) {
+        return NO;
+    }
+    kiwi::Variable *minY = [self getExistingVariableForView:view withAttribute:GSLayoutAttributeMinY];
+    if (!minY) {
+        return NO;
+    }
+    kiwi::Variable *width = [self getExistingVariableForView:view withAttribute:GSLayoutAttributeWidth];
+    if (!width || !width->value()) {
+        return NO;
+    }
+    kiwi::Variable *height = [self getExistingVariableForView:view withAttribute:GSLayoutAttributeHeight];
+    if (!height || !width->value()) {
+        return NO;
     }
     
-    return viewIdentifier;
+    return YES;
+}
+
+-(BOOL)isValidNSRect: (NSRect)rect
+{
+    return rect.origin.x >= 0 && rect.origin.y >= 0;
+}
+
+-(void)updateAlignmentRectsForTrackedViews
+{
+    solver->updateVariables();
+    
+    NSMutableArray *viewsWithChanges = [NSMutableArray array];
+    for (NSView *view in trackedViews) {
+        NSNumber *viewIndex = [self indexForView:view];
+        if ([self _solverCanSolveAlignmentRectForView: view] && ![view hasAmbiguousLayout]) {
+            NSRect existingAlignmentRect = [self currentAlignmentRectForViewAtIndex:viewIndex];
+            BOOL noExistingAlignmentRect = ![self isValidNSRect: existingAlignmentRect];
+            NSRect solverAlignmentRect = [self _solverAlignmentRectForView:view];
+            [self recordAlignmentRect:solverAlignmentRect forViewIndex:viewIndex];
+            
+            if (noExistingAlignmentRect || !NSEqualRects(solverAlignmentRect, existingAlignmentRect)) {
+                [viewsWithChanges addObject:view];
+            }
+        }
+    }
+    
+    [self notifyViewsOfAlignmentRectChange:viewsWithChanges];
+}
+
+-(void)notifyViewsOfAlignmentRectChange: (NSArray*)viewsWithChanges
+{
+    for (NSView *view in viewsWithChanges) {
+        [view layoutEngineDidChangeAlignmentRect];
+    }
+}
+
+-(BOOL)hasExistingAlignmentRectForView: (NSView*)view
+{
+    NSNumber *viewIndex = [viewIndexByViewHash objectForKey:[NSNumber numberWithUnsignedInteger:[view hash]]];
+    NSValue *existingRectValue = [viewAlignmentRectByViewIndex objectForKey:viewIndex];
+    return existingRectValue != nil;
+}
+
+-(void)recordAlignmentRect: (NSRect)alignmentRect forViewIndex: (NSNumber*)viewIndex
+{
+    NSValue *newRectValue = [NSValue valueWithRect:alignmentRect];
+    [viewAlignmentRectByViewIndex setObject:newRectValue forKey:viewIndex];
+}
+
+-(NSRect)getExistingAlignmentRectFromForViewOrDetermineFromSolver: (NSView*)view
+{
+    NSNumber *viewIndex = [self indexForView:view];
+    NSRect existingRect = [self currentAlignmentRectForViewAtIndex:viewIndex];
+    if (!NSIsEmptyRect(existingRect)) {
+        return existingRect;
+    }
+    
+    NSRect newAlignmentRect = [self _solverAlignmentRectForView:view];
+    NSValue *newRectValue = [NSValue valueWithRect:newAlignmentRect];
+    [viewAlignmentRectByViewIndex setObject:newRectValue forKey:viewIndex];\
+    return newAlignmentRect;
+}
+
+-(NSRect)currentAlignmentRectForViewAtIndex: (NSNumber*)viewIndex
+{
+    NSValue *existingRectValue = [viewAlignmentRectByViewIndex objectForKey:viewIndex];
+    if (!existingRectValue) {
+        return NSMakeRect(-1, -1, -1, -1);
+    }
+    NSRect existingAlignmentRect;
+    [existingRectValue getValue: &existingAlignmentRect];
+    return existingAlignmentRect;
+}
+
+-(NSRect)alignmentRectForView: (NSView*)view {
+    NSNumber *viewIndex = [self indexForView:view];
+    
+    return [self currentAlignmentRectForViewAtIndex:viewIndex];
+}
+
+-(NSString*)getIdentifierForView:(NSView*)view
+{
+    NSUInteger viewIndex;
+    NSNumber *existingViewIndex = [self indexForView:view];
+    if (existingViewIndex) {
+        viewIndex = [existingViewIndex unsignedIntegerValue];
+    } else {
+        viewIndex = [self registerView:view];
+    }
+    
+    return [NSString stringWithFormat: @"view%ld", (long)viewIndex];
+}
+
+-(NSNumber*)indexForView: (NSView*)view
+{
+    return [viewIndexByViewHash objectForKey:[NSNumber numberWithUnsignedInteger:[view hash]]];
+}
+
+-(NSString*)getViewIndentifierForIndex: (NSUInteger)viewIndex
+{
+    return [NSString stringWithFormat: @"view%ld", (long)viewIndex];
+}
+
+-(NSInteger)registerView: (NSView*)view {
+    NSUInteger viewIndex = [trackedViews count];
+    [trackedViews addObject:view];
+    [viewIndexByViewHash setObject:[NSNumber numberWithUnsignedInteger:viewIndex] forKey: [NSNumber numberWithUnsignedInteger:[view hash]]];
+     
+    return viewIndex;
 }
 
 -(void)addConstraint:(NSLayoutConstraint*)constraint
@@ -143,6 +264,8 @@ typedef NS_ENUM(NSInteger, GSLayoutAttribute) {
     } catch (std::exception& e) {
         NSLog(@"Error adding an error constraint");
     }
+    
+    [self updateAlignmentRectsForTrackedViews];
 }
 
 -(void)addSupportingInternalConstraintsToView: (NSView*)view forAttribute: (NSLayoutAttribute)attribute
@@ -336,6 +459,8 @@ typedef NS_ENUM(NSInteger, GSLayoutAttribute) {
     kiwi::Constraint *newKConstraint = [self solverConstraintForConstraint:constraint];
     constraintsByAutoLayoutConstaintHash[[constraint hash]] = newKConstraint;
     [self addSolverConstraint:newKConstraint];
+    
+    [self updateAlignmentRectsForTrackedViews];
 }
 
 -(void)addConstraints: (NSArray*)constraints
@@ -580,6 +705,9 @@ typedef NS_ENUM(NSInteger, GSLayoutAttribute) {
     }
     [self removeObserverFromConstraint:constraint];
     [self removeSolverConstraint:kConstraint];
+    
+    [self updateAlignmentRectsForTrackedViews];
+
     // TODO clean up internal constraints
     // TODO clean up observers of any dynamic attributes that relate to constraint
 }
@@ -596,11 +724,12 @@ typedef NS_ENUM(NSInteger, GSLayoutAttribute) {
     return [self getExistingConstraintForAutolayoutConstraint: constraint] != nil;
 }
 
--(NSString*)debugSolver
+-(void)debugSolver
 {
     std::string dump = solver->dumps();
-    return [NSString stringWithCString:dump.c_str()
+    NSString *debug = [NSString stringWithCString:dump.c_str()
     encoding:[NSString defaultCStringEncoding]];
+    NSLog(@"%@", debug);
 }
 
 -(void)addSolverConstraint: (kiwi::Constraint*)constraint
